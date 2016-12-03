@@ -120,14 +120,14 @@ class Player(Tk.Frame):
 
 
         # VLC player controls
-        self.Instance = vlc.Instance()
+        self.Instance = vlc.Instance('--verbose 2')
         self.player = self.Instance.media_player_new()
 
         # below is a test, now use the File->Open file menu
-        #media = self.Instance.media_new('output.mp4')
-        #self.player.set_media(media)
-        #self.player.play() # hit the player button
-        #self.player.video_set_deinterlace(str_to_bytes('yadif'))
+        media = self.Instance.media_new('rtsp://192.168.0.199:5554/playlist.m3u')
+        self.player.set_media(media)
+        self.player.play() # hit the player button
+
 
         self.timer = ttkTimer(self.OnTimer, 1.0)
         self.timer.start()

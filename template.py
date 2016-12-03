@@ -72,23 +72,32 @@ class Player(Tk.Frame):
             title = "tk_vlc"
         self.parent.title(title)
 
-
-
+        self.player = None
+        self.videopanel = ttk.Frame(self.parent)
+        self.canvas = Tk.Canvas(self.videopanel).pack(fill=Tk.BOTH,expand=1)
+        self.videopanel.pack(fill=Tk.BOTH,expand=1)
 
         # VLC player controls
         self.Instance = vlc.Instance()
         self.player = self.Instance.media_player_new()
 
         # below is a test, now use the File->Open file menu
-        media = self.Instance.media_new('http://10.152.61.112:8080/playlist.m3u')
+        media = self.Instance.media_new('rtsp://192.168.0.199:5554/playlist.m3u')
         self.player.set_media(media)
         self.player.play() # hit the player button
-        self.player.video_set_deinterlace(str.encode('yadif'))
+        #self.player.video_set_deinterlace(str.encode('yadif'))
 
 
         self.parent.update()
+        self.player.set_xwindow(self.GetHandle())
+        while 1:
+            time.sleep(1)
+            print (self.player.video_take_snapshot(0, "hello.jpg", 0, 0))
+            print("Screenshotted")
 
         #self.player.set_hwnd(self.GetHandle()) # for windows, OnOpen does does this
+    def GetHandle(self):
+        return self.videopanel.winfo_id()
 
 
 
@@ -114,7 +123,3 @@ if __name__ == "__main__":
     player = Player(root, title="tkinter vlc")
     # show the player window centred and run the application
     root.mainloop()
-
-while 1:
-    time.sleep(1)
-    print (player.video_take_snapshot(1, "hello.jpg", 0, 0))

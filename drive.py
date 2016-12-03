@@ -1,13 +1,19 @@
 
 import tkinter as tk
+from tkinter import ttk
+import vlc
+import sys
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
+
+class MainFrame(tk.Frame):
+    def __init__(self, parent, title=None):
+        tk.Frame.__init__(self, parent)
         self.pack()
         self.create_widgets()
 
     def create_widgets(self):
+
+        self.parent = parent
 
         self.autopilot = tk.Button(self)
         self.autopilot["text"] = "Autopilot"
@@ -19,9 +25,15 @@ class Application(tk.Frame):
         self.training["command"] = self.init_train
         self.training.pack(side="bottom")
 
+        self.player = None
+        self.videopanel = ttk.Frame(self.parent)
+        self.canvas = Tk.Canvas(self.videopanel).pack(fill=Tk.BOTH,expand=1)
+        self.videopanel.pack(fill=Tk.BOTH,expand=1)
+
 
     def init_autopilot(self):
         print("Commencing Autopilot mode.")
+
 
     def init_train(self):
         print("Training Mode.")
@@ -43,7 +55,7 @@ class Application(tk.Frame):
 
 
 root = tk.Tk()
-app = Application(master=root)
+app = MainFrame()
 
 
 app.mainloop()
