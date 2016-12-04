@@ -4,6 +4,7 @@ import sys
 import tkinter as Tk
 from tkinter import ttk
 
+
 # import standard libraries
 import os
 import pathlib
@@ -32,7 +33,7 @@ class Player(Tk.Frame):
 
         self.player = None
         self.videopanel = ttk.Frame(self.parent)
-        self.canvas = Tk.Canvas(self.videopanel).pack()
+        self.canvas = Tk.Canvas(self.videopanel).pack(fill=Tk.BOTH,expand=1)
         self.videopanel.pack(fill=Tk.BOTH,expand=1)
 
         # VLC player controls
@@ -45,22 +46,17 @@ class Player(Tk.Frame):
         self.player.play() # hit the player button
         self.player.video_set_deinterlace(str.encode('yadif'))
 
-        self.autopilot = Tk.Button(self)
-        self.autopilot["text"] = "Autopilot"
-        self.autopilot["command"] = self.init_autopilot
-        self.autopilot.pack(side="top")
+        ctrlpanel = ttk.Frame(self.parent)
+        autopilot  = ttk.Button(ctrlpanel, text="Autopilot", command=self.init_autopilot)
+        training   = ttk.Button(ctrlpanel, text="Training", command=self.init_train)
 
-        self.training = Tk.Button(self)
-        self.training["text"] = "Training Mode"
-        self.training["command"] = self.init_train
-        self.training.pack(side="bottom")
+        autopilot.pack(side=Tk.LEFT)
+        training.pack(side=Tk.LEFT)
+
+        ctrlpanel.pack(side=Tk.BOTTOM)
 
         self.parent.update()
         self.player.set_xwindow(self.GetHandle())
-
-
-
-
 
     def GetHandle(self):
         return self.videopanel.winfo_id()
@@ -75,18 +71,21 @@ class Player(Tk.Frame):
         right_count = 0
 
         print("Training Mode.")
+
         def upKey(event):
             print ("Up key pressed")
             self.player.video_take_snapshot(0, "data/up/up_" + str(up_count) + ".jpg", 0, 0)
-            up_count++
+            up_count+=1
+
         def leftKey(event):
             print ("Left key pressed")
             self.player.video_take_snapshot(0, "data/up/left_" + str(up_count) + ".jpg", 0, 0)
-            left_count++
+            left_count+=1
         def rightKey(event):
             print ("Right key pressed")
             self.player.video_take_snapshot(0, "data/up/right_" + str(up_count) + ".jpg", 0, 0)
-            right_count++
+            right_count+=1
+
         root.bind('<Up>', upKey)
         root.bind('<Left>', leftKey)
         root.bind('<Right>', rightKey)
@@ -110,5 +109,7 @@ if __name__ == "__main__":
     root.protocol("WM_DELETE_WINDOW", _quit)
 
     player = Player(root, title="CarNet")
+
+    #buttons = Tk.Frame(root)
     # show the player window centred and run the application
     root.mainloop()
