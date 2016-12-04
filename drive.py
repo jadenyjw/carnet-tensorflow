@@ -4,7 +4,8 @@ import sys
 import tkinter as Tk
 from tkinter import ttk
 
-
+import string
+import random
 # import standard libraries
 import os
 import pathlib
@@ -17,6 +18,7 @@ parser = argparse.ArgumentParser(description='Wireless controller of CarNet.')
 parser.add_argument('camera', type=str, help='The IP address of the remote camera.')
 #parser.add_argument('car', type=str, help='The IP address of the car.')
 args = parser.parse_args()
+
 
 
 class Player(Tk.Frame):
@@ -66,25 +68,23 @@ class Player(Tk.Frame):
 
     def init_train(self):
 
-        up_count = 0
-        left_count = 0
-        right_count = 0
-
         print("Training Mode.")
 
         def upKey(event):
             print ("Up key pressed")
-            self.player.video_take_snapshot(0, "data/up/up_" + str(up_count) + ".jpg", 0, 0)
-            up_count+=1
+            self.player.video_take_snapshot(0, "data/up/up_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+ + ".png", 0, 0)
+
 
         def leftKey(event):
             print ("Left key pressed")
-            self.player.video_take_snapshot(0, "data/up/left_" + str(up_count) + ".jpg", 0, 0)
-            left_count+=1
+            self.player.video_take_snapshot(0, "data/left/left_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+ + ".png", 0, 0)
+
         def rightKey(event):
             print ("Right key pressed")
-            self.player.video_take_snapshot(0, "data/up/right_" + str(up_count) + ".jpg", 0, 0)
-            right_count+=1
+            self.player.video_take_snapshot(0, "data/right/right_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6)) + ".png", 0, 0)
+
 
         root.bind('<Up>', upKey)
         root.bind('<Left>', leftKey)
