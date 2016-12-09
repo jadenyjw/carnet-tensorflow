@@ -4,6 +4,8 @@ import sys
 import tkinter as Tk
 from tkinter import ttk
 
+import socket
+
 import string
 import random
 # import standard libraries
@@ -16,9 +18,21 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Wireless controller of CarNet.')
 parser.add_argument('camera', type=str, help='The IP address of the remote camera.')
-#parser.add_argument('car', type=str, help='The IP address of the car.')
+parser.add_argument('car', type=str, help='The IP address of the car.')
 args = parser.parse_args()
 
+UDP_IP = args.car
+UDP_PORT = 420
+
+def go_left():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(str.encode("left"), (UDP_IP, UDP_PORT))
+def go_right():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(str.encode("right"), (UDP_IP, UDP_PORT))
+def go_forward():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.sendto(str.encode("forward"), (UDP_IP, UDP_PORT))
 
 
 class Player(Tk.Frame):
@@ -74,17 +88,19 @@ class Player(Tk.Frame):
             print ("Up key pressed")
             self.player.video_take_snapshot(0, "data/up/up_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
  + ".png", 0, 0)
+            go_forward()
 
 
         def leftKey(event):
             print ("Left key pressed")
             self.player.video_take_snapshot(0, "data/left/left_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
  + ".png", 0, 0)
+            go_left()
 
         def rightKey(event):
             print ("Right key pressed")
             self.player.video_take_snapshot(0, "data/right/right_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6)) + ".png", 0, 0)
-
+            go_right()
 
         root.bind('<Up>', upKey)
         root.bind('<Left>', leftKey)
