@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/jaden/Tensorflow/carnet-tensorflow/carnet.tfl"
+all_model_checkpoint_paths: "/home/jaden/Tensorflow/carnet-tensorflow/carnet.tfl"

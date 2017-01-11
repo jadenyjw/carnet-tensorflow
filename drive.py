@@ -4,6 +4,20 @@ import sys
 import tkinter as Tk
 from tkinter import ttk
 
+import numpy as np
+
+import tflearn
+from tflearn.data_utils import shuffle
+from tflearn.layers.core import input_data, fully_connected
+from tflearn.layers.conv import conv_2d, max_pool_2d
+from tflearn.layers.estimator import regression
+from tflearn.data_preprocessing import ImagePreprocessing
+from tflearn.data_augmentation import ImageAugmentation
+from tflearn.layers.normalization import local_response_normalization
+import h5py
+from tflearn.data_utils import build_hdf5_image_dataset
+
+import scipy
 import socket
 
 import string
@@ -16,13 +30,30 @@ import time
 import platform
 import argparse
 
+# Make sure the data is normalized
+img_prep = ImagePreprocessing()
+img_prep.add_featurewise_zero_center()
+img_prep.add_featurewise_stdnorm()
+
+network = input_data(shape=[None, 144, 144, 3],
+                     data_preprocessing=img_prep)
+network = fully_connected(network, 64, activation='relu')
+network = fully_connected(network, 3, activation='softmax')
+# Tell tflearn how we want to train the network
+network = regression(network, optimizer='adam',
+                     loss='categorical_crossentropy',
+                     learning_rate=0.001)
+
+# Wrap the network in a model object
+model = tflearn.DNN(network, tensorboard_verbose=3, checkpoint_path='carnet.tfl.ckpt')
+model.load("carnet.tfl")
 parser = argparse.ArgumentParser(description='Wireless controller of CarNet.')
 parser.add_argument('camera', type=str, help='The IP address of the remote camera.')
 parser.add_argument('car', type=str, help='The IP address of the car.')
 args = parser.parse_args()
 
 UDP_IP = args.car
-UDP_PORT = 420
+UDP_PORT = 42069
 
 def go_left():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -79,6 +110,30 @@ class Player(Tk.Frame):
 
     def init_autopilot(self):
         print("Commencing Autopilot mode.")
+        while 1:
+            self.player.video_take_snapshot(0, "picture.png", 0, 0)
+            img = scipy.misc.imread('picture.png')
+            img = scipy.misc.imresize(img, [144,144])
+            img = np.reshape(img, [-1, 144, 144, 3])
+            prediction = model.predict(img.astype('float32'))
+
+
+            max = 0.
+            for i in range(len(prediction[0])):
+                if prediction[0][i] > max:
+                    max = prediction[0][i]
+                    maxIndex = i
+            print(maxIndex)
+            if maxIndex == 0:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.sendto(str.encode("forward"), (UDP_IP, UDP_PORT))
+            elif maxIndex == 1:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.sendto(str.encode("left"), (UDP_IP, UDP_PORT))
+            elif maxIndex == 2:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.sendto(str.encode("right"), (UDP_IP, UDP_PORT))
+
 
     def init_train(self):
 
@@ -86,7 +141,7 @@ class Player(Tk.Frame):
 
         def upKey(event):
             print ("Up key pressed")
-            self.player.video_take_snapshot(0, "data/up/up_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
+            self.player.video_take_snapshot(0, "data/forward/forward_" + ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
  + ".png", 0, 0)
             go_forward()
 
